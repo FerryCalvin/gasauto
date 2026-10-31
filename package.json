@@ -1,0 +1,22 @@
+{
+  "name": "gasauto-monorepo",
+  "version": "1.0.0",
+  "description": "Smart Gas Token System - IoT Digital Twin & Backend",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "test:backend": "npm --prefix backend run test",
+    "test:coverage": "npm --prefix backend run test:coverage",
+    "test": "npm run test:backend",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "start": "node backend/dist/server.js",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}

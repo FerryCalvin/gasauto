@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased font-sans selection:bg-amber-500 selection:text-slate-950;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom animation for fluid pipe flow */
+@keyframes flowParticle {
+  0% {
+    stroke-dashoffset: 40;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-gas-flow {
+  animation: flowParticle 0.8s linear infinite;
+}
+
+.animate-gas-flow-fast {
+  animation: flowParticle 0.35s linear infinite;
+}
+
+/* LCD 1602 retro styling */
+.font-lcd {
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 0.08em;
+}
+
+/* Pulse animation */
+@keyframes ledPulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.8)); }
+}
+
+.animate-led-pulse {
+  animation: ledPulse 0.4s ease-in-out infinite;
+}
