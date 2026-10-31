@@ -32,3 +32,8 @@ logs/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Agent workspaces & scratch
+.agents/
+PROJECT.md
+

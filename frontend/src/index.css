@@ -1,10 +1,75 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  --color-surface-base: #090a0f;
+  --color-surface-card: #121318;
+  --color-surface-elevated: #181920;
+  --color-surface-subtle: #1e1f28;
+
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-active: rgba(255, 255, 255, 0.16);
+  --color-micro-border: rgba(255, 255, 255, 0.08);
+
+  --color-accent-gas: #f59e0b;
+  --color-accent-safe: #10b981;
+  --color-accent-alert: #f43f5e;
+}
+
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 antialiased font-sans selection:bg-amber-500 selection:text-slate-950;
+    @apply bg-[#090a0f] text-zinc-100 antialiased font-sans selection:bg-amber-500 selection:text-zinc-950;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
+}
+
+/* Tabular numerals for jitter-free metric counters */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Teenage Engineering / Dieter Rams retro-modern display styles */
+.lcd-monochrome {
+  font-family: var(--font-mono, monospace);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+.lcd-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.22),
+    rgba(0, 0, 0, 0.22) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+.te-lcd-display {
+  background-color: #0b100e;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #4ade80;
+  font-family: var(--font-mono, monospace);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+.te-lcd-amber {
+  background-color: #110e08;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+  font-family: var(--font-mono, monospace);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+/* Legacy LCD 1602 retro styling fallback */
+.font-lcd {
+  font-family: var(--font-mono, 'Courier New', Courier, monospace);
+  letter-spacing: 0.08em;
 }
 
 /* Custom animation for fluid pipe flow */
@@ -25,16 +90,17 @@
   animation: flowParticle 0.35s linear infinite;
 }
 
-/* LCD 1602 retro styling */
-.font-lcd {
-  font-family: 'Courier New', Courier, monospace;
-  letter-spacing: 0.08em;
-}
-
 /* Pulse animation */
 @keyframes ledPulse {
-  0%, 100% { opacity: 0.2; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.8)); }
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.8));
+  }
 }
 
 .animate-led-pulse {

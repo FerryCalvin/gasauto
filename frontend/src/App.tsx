@@ -9,10 +9,9 @@ import { TokenPurchaseModal } from './components/portal/TokenPurchaseModal';
 import { TariffSettingsView } from './components/admin/TariffSettingsView';
 import { MqttInspectorTerminal } from './components/iot/MqttInspectorTerminal';
 import { formatVolume, formatRupiah } from './utils/formatters';
-import { Flame, Gauge, Zap, ShoppingBag, CheckCircle2, Power, Sparkles } from 'lucide-react';
 
 const MainDashboard: React.FC = () => {
-  const { activeTab, setActiveTab, meter, tariff, appliances, setAppliances } = useGas();
+  const { activeTab, meter, tariff, appliances } = useGas();
 
   const remaining = meter?.remainingQuotaM3 ?? 0;
   const isAlert = meter?.isAlertActive ?? false;
@@ -28,157 +27,127 @@ const MainDashboard: React.FC = () => {
   const totalUsedRupiah = (meter?.totalConsumedM3 ?? 0) * priceM3;
 
   return (
-    <div className="min-h-screen bg-[#070b12] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
+    <div className="min-h-screen bg-[#090a0f] text-zinc-100 flex flex-col font-sans selection:bg-amber-500 selection:text-zinc-950">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* TAB 1: SIMULASI GAS & DIGITAL TWIN */}
         {activeTab === 'twin' && (
-          <div className="space-y-5">
-            {/* Consumer-Friendly Status Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-              {/* 1. Sisa Saldo Gas */}
-              <div
-                className={`p-4 rounded-2xl border transition-all ${
-                  isAlert
-                    ? 'bg-rose-950/25 border-rose-500/50 shadow-lg shadow-rose-950/40'
-                    : 'bg-slate-900/90 border-slate-800'
-                }`}
-              >
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-                  <span className="font-semibold">SISA SALDO GAS</span>
-                  <Flame
-                    className={`w-4 h-4 ${
-                      isAlert ? 'text-rose-400 animate-pulse' : 'text-amber-400'
-                    }`}
-                  />
+          <div className="space-y-6">
+            {/* Unified Telemetry Console (Braun Receiver / Industrial Instrument Style) */}
+            <section className="bg-[#0f1013] border border-zinc-800/80 rounded-xl overflow-hidden shadow-xs">
+              <div className="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-zinc-800/70">
+                {/* 1. Sisa Saldo Gas */}
+                <div className="p-4 sm:p-5 flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-[11px] text-zinc-400 uppercase tracking-wider font-mono">
+                    <span>Sisa Saldo Gas</span>
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        remaining <= 0
+                          ? 'bg-rose-500'
+                          : isAlert
+                          ? 'bg-amber-400 animate-pulse'
+                          : 'bg-emerald-400'
+                      }`}
+                    />
+                  </div>
+                  <div className="my-2">
+                    <div className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-zinc-100 tabular-nums">
+                      {formatVolume(remaining)}
+                    </div>
+                    <div className="text-xs font-mono text-amber-400/90 font-medium mt-0.5 tabular-nums">
+                      {formatRupiah(equivalentRupiah)}
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-zinc-500 font-mono">
+                    Status:{' '}
+                    <span
+                      className={
+                        remaining <= 0
+                          ? 'text-rose-400 font-medium'
+                          : isAlert
+                          ? 'text-amber-400 font-medium'
+                          : 'text-emerald-400 font-medium'
+                      }
+                    >
+                      {remaining <= 0 ? 'Habis (0 m³)' : isAlert ? 'Menipis (<10%)' : 'Nominal Aman'}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight font-mono">
-                  {formatVolume(remaining)}
-                </div>
-                <div className="flex items-center justify-between text-xs mt-1">
-                  <span className="text-amber-400 font-bold">{formatRupiah(equivalentRupiah)}</span>
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                      remaining <= 0
-                        ? 'bg-rose-500/20 text-rose-300'
-                        : isAlert
-                        ? 'bg-amber-500/20 text-amber-300'
-                        : 'bg-emerald-500/20 text-emerald-300'
-                    }`}
-                  >
-                    {remaining <= 0 ? 'Habis' : isAlert ? 'Menipis' : 'Aman'}
-                  </span>
-                </div>
-              </div>
 
-              {/* 2. Status Aliran Gas */}
-              <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-                  <span className="font-semibold">STATUS ALIRAN GAS</span>
-                  <Gauge className="w-4 h-4 text-sky-400" />
-                </div>
-                <div className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-                  <span
-                    className={
-                      valveStatus === 'OPEN'
-                        ? 'text-emerald-400'
+                {/* 2. Katup Kontrol */}
+                <div className="p-4 sm:p-5 flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-[11px] text-zinc-400 uppercase tracking-wider font-mono">
+                    <span>Katup Solenoid</span>
+                    <span className="font-mono text-[10px] text-zinc-500 tabular-nums">
+                      {Math.round(meter?.valveAngleDeg ?? 0)}°
+                    </span>
+                  </div>
+                  <div className="my-2">
+                    <div
+                      className={`text-2xl sm:text-3xl font-mono font-bold tracking-tight tabular-nums ${
+                        valveStatus === 'OPEN'
+                          ? 'text-emerald-400'
+                          : valveStatus === 'CLOSING'
+                          ? 'text-amber-400 animate-pulse'
+                          : 'text-rose-400'
+                      }`}
+                    >
+                      {valveStatus === 'OPEN' ? 'OPEN' : valveStatus === 'CLOSING' ? 'CLOSING' : 'LOCKED'}
+                    </div>
+                    <div className="text-xs text-zinc-400 mt-0.5 font-mono">
+                      {valveStatus === 'OPEN'
+                        ? 'Aliran Tersedia'
                         : valveStatus === 'CLOSING'
-                        ? 'text-amber-400 animate-pulse'
-                        : 'text-rose-400'
-                    }
-                  >
-                    {valveStatus === 'OPEN'
-                      ? 'Mengalir'
-                      : valveStatus === 'CLOSING'
-                      ? 'Menutup'
-                      : 'Tertutup'}
-                  </span>
-                  <span className="text-xs text-slate-400 font-normal">
-                    ({Math.round(meter?.valveAngleDeg ?? 0)}°)
-                  </span>
+                        ? 'Proses Memutus'
+                        : 'Pasokan Ditutup'}
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-zinc-500 font-mono">
+                    Mekanisme: Presisi 90° Rotary
+                  </div>
                 </div>
-                <div className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                  {valveStatus === 'OPEN' ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Katup terbuka aman</span>
-                    </>
-                  ) : (
-                    <>
-                      <Power className="w-3.5 h-3.5 text-rose-400" />
-                      <span>Katup otomatis terkunci</span>
-                    </>
-                  )}
+
+                {/* 3. Laju Aliran Real-time */}
+                <div className="p-4 sm:p-5 flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-[11px] text-zinc-400 uppercase tracking-wider font-mono">
+                    <span>Laju Aliran Real-time</span>
+                    <span className="text-[10px] font-mono text-zinc-500">LPM</span>
+                  </div>
+                  <div className="my-2">
+                    <div className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-zinc-100 tabular-nums">
+                      {(meter?.currentFlowRateLpm ?? 0).toFixed(2)}{' '}
+                      <span className="text-sm font-normal text-zinc-500">L/m</span>
+                    </div>
+                    <div className="text-xs text-zinc-400 mt-0.5 font-mono">
+                      {isCooking ? 'Beban Aktif Menyala' : 'Standby (Nol Beban)'}
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-zinc-500 font-mono">
+                    Sensor: Hall-Effect Pulse
+                  </div>
+                </div>
+
+                {/* 4. Total Pemakaian */}
+                <div className="p-4 sm:p-5 flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-[11px] text-zinc-400 uppercase tracking-wider font-mono">
+                    <span>Total Konsumsi</span>
+                    <span className="text-[10px] font-mono text-zinc-500">TOTAL</span>
+                  </div>
+                  <div className="my-2">
+                    <div className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-zinc-100 tabular-nums">
+                      {formatVolume(meter?.totalConsumedM3 ?? 0)}
+                    </div>
+                    <div className="text-xs text-zinc-400 mt-0.5 font-mono tabular-nums">
+                      Akumulasi: {formatRupiah(totalUsedRupiah)}
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-zinc-500 font-mono">
+                    Indeks Register Kumulatif
+                  </div>
                 </div>
               </div>
-
-              {/* 3. Aktivitas Dapur */}
-              <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-                  <span className="font-semibold">AKTIVITAS DAPUR</span>
-                  <Zap className="w-4 h-4 text-cyan-400" />
-                </div>
-                <div className="text-xl sm:text-2xl font-bold text-slate-100 flex items-center gap-2">
-                  <span className={isCooking ? 'text-amber-400' : 'text-slate-400'}>
-                    {isCooking ? 'Sedang Memasak' : 'Semua Mati'}
-                  </span>
-                </div>
-                <div className="text-xs text-slate-400 mt-1 flex items-center justify-between">
-                  <span>Pemakaian:</span>
-                  <span className="font-mono text-cyan-400 font-bold">
-                    {(meter?.currentFlowRateLpm ?? 0).toFixed(2)} L/m
-                  </span>
-                </div>
-              </div>
-
-              {/* 4. Total Pemakaian Gas */}
-              <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-                  <span className="font-semibold">TOTAL PEMAKAIAN</span>
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                </div>
-                <div className="text-xl sm:text-2xl font-bold font-mono text-slate-100">
-                  {formatVolume(meter?.totalConsumedM3 ?? 0)}
-                </div>
-                <div className="text-xs text-slate-400 mt-1 flex items-center justify-between">
-                  <span>Akumulasi:</span>
-                  <span className="text-slate-300 font-semibold">{formatRupiah(totalUsedRupiah)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Action Ribbon for Non-Coder Friends */}
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-3 flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2 text-xs text-slate-300 px-2">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>
-                  <strong>Aksi Cepat:</strong> Coba tombol di samping untuk menguji simulasi secara langsung
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setActiveTab('portal')}
-                  className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>Beli Kuota Gas</span>
-                </button>
-
-                <button
-                  onClick={() => setAppliances({ stove1: appliances.stove1 === 'OFF' ? 'MED' : 'OFF' })}
-                  className={`px-3.5 py-1.5 font-bold text-xs rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer ${
-                    appliances.stove1 !== 'OFF'
-                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/30 hover:bg-rose-500/30'
-                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/30'
-                  }`}
-                >
-                  <Flame className="w-3.5 h-3.5" />
-                  <span>{appliances.stove1 !== 'OFF' ? 'Matikan Kompor' : 'Nyalakan Kompor'}</span>
-                </button>
-              </div>
-            </div>
+            </section>
 
             {/* Main Interactive Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
@@ -207,11 +176,11 @@ const MainDashboard: React.FC = () => {
         {activeTab === 'iot' && <MqttInspectorTerminal />}
       </main>
 
-      {/* Friendly Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950/80 py-4 mt-8">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-          <span>GasAuto &bull; Sistem Cerdas Meteran Gas Prabayar &bull; Standard STS 20-Digit</span>
-          <span>Simulasi 3D Interaktif untuk Pengguna & Komunitas</span>
+      {/* Dieter Rams / Industrial Footer */}
+      <footer className="border-t border-zinc-800/80 bg-[#09090b] py-4 mt-8">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-xs font-mono text-zinc-500 gap-2">
+          <span>GASAUTO &bull; SISTEM CIKAL BAKAL STS-20 &bull; IEC 62055-41 COMPLIANT</span>
+          <span>DIGITAL TWIN SIMULATOR &bull; INDUSTRIAL MINIMALISM</span>
         </div>
       </footer>
     </div>
